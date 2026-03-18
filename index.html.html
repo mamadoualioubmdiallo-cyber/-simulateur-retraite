@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Calcule ta pension de retraite en Afrique de l'Ouest en 30 secondes. Outil gratuit basé sur les données officielles CNPS, IPRES, CNSS, CARFO.">
+<meta name="robots" content="index, follow">
+<title>Simulateur Retraite — Le Jour Zéro</title>
+
+<!-- Security headers via meta -->
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ── RESET & BASE ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+
+:root {
+  --navy:    #0E2640;
+  --navy2:   #1A3A5C;
+  --ochre:   #C8842A;
+  --ochre2:  #E09B3D;
+  --red:     #A61C1C;
+  --green:   #1A5C38;
+  --cream:   #F7F3EE;
+  --cream2:  #EDE8E1;
+  --white:   #FFFFFF;
+  --grey:    #3D3D3D;
+  --lgrey:   #777777;
+  --border:  #D8D0C4;
+  --shadow:  0 4px 32px rgba(14,38,64,0.10);
+  --shadow2: 0 2px 12px rgba(14,38,64,0.07);
+  --radius:  3px;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --transition:   all 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--cream);
+  color: var(--grey);
+  line-height: 1.65;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ──────────────────────────────────────── */
+.header {
+  background: var(--navy);
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+}
+.header-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.logo {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.3px;
+}
+.logo span { color: var(--ochre); }
+.header-badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ochre2);
+  border: 1px solid rgba(200,132,42,0.4);
+  padding: 4px 10px;
+  border-radius: var(--radius);
+}
+
+/* ── HERO ────────────────────────────────────────── */
+.hero {
+  background: var(--navy);
+  padding: 56px 24px 48px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 32px;
+  background: var(--cream);
+  clip-path: ellipse(55% 100% at 50% 100%);
+}
+.hero-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--ochre2);
+  margin-bottom: 16px;
+  display: inline-block;
+  padding: 5px 14px;
+  border: 1px solid rgba(200,132,42,0.3);
+  border-radius: 2px;
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 5vw, 52px);
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.15;
+  margin-bottom: 16px;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--ochre2);
+}
+.hero-sub {
+  font-size: 16px;
+  color: rgba(255,255,255,0.65);
+  max-width: 480px;
+  margin: 0 auto 32px;
+  font-weight: 300;
+  line-height: 1.7;
+}
+.hero-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(200,132,42,0.15);
+  border: 1px solid rgba(200,132,42,0.35);
+  border-radius: var(--radius);
+  padding: 10px 20px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+}
+.hero-stat strong {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ochre2);
+  line-height: 1;
+}
+
+/* ── MAIN ─────────────────────────────────────────── */
+.main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* ── FORM CARD ───────────────────────────────────── */
+.form-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--ochre);
+  border-radius: var(--radius);
+  padding: 40px 44px;
+  box-shadow: var(--shadow);
+  margin-bottom: 32px;
+  animation: fadeUp 0.5s ease both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.form-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+.form-subtitle {
+  font-size: 14px;
+  color: var(--lgrey);
+  margin-bottom: 36px;
+  font-style: italic;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px 32px;
+  margin-bottom: 32px;
+}
+@media (max-width: 580px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .form-card { padding: 28px 22px; }
+}
+
+.field { display: flex; flex-direction: column; gap: 7px; }
+.field.full { grid-column: 1 / -1; }
+
+label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--navy2);
+}
+label .required { color: var(--ochre); margin-left: 3px; }
+
+.input-wrap { position: relative; }
+.input-wrap .unit {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lgrey);
+  pointer-events: none;
+}
+
+input[type="number"],
+input[type="text"],
+select {
+  width: 100%;
+  padding: 13px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--grey);
+  background: var(--cream);
+  transition: var(--transition);
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+}
+input[type="number"] { padding-right: 56px; }
+input:focus, select:focus {
+  border-color: var(--ochre);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(200,132,42,0.12);
+}
+input.error, select.error {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(166,28,28,0.10);
+}
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '▾';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ochre);
+  font-size: 14px;
+  pointer-events: none;
+}
+.field-hint {
+  font-size: 11px;
+  color: var(--lgrey);
+  font-style: italic;
+  margin-top: 2px;
+}
+.field-error {
+  font-size: 11px;
+  color: var(--red);
+  font-weight: 600;
+  display: none;
+}
+.field-error.visible { display: block; }
+
+/* ── RANGE SLIDER ────────────────────────────────── */
+.range-group { display: flex; flex-direction: column; gap: 8px; }
+.range-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.range-value {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ochre);
+}
+.range-label-small { font-size: 12px; color: var(--lgrey); }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--cream2);
+  border-radius: 3px;
+  outline: none;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--ochre);
+  cursor: pointer;
+  border: 3px solid var(--white);
+  box-shadow: 0 2px 8px rgba(200,132,42,0.4);
+  transition: transform 0.15s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type="range"]::-moz-range-thumb {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--ochre);
+  cursor: pointer;
+  border: 3px solid var(--white);
+  box-shadow: 0 2px 8px rgba(200,132,42,0.4);
+}
+
+/* ── BUTTON ──────────────────────────────────────── */
+.btn-calc {
+  width: 100%;
+  padding: 17px 32px;
+  background: var(--navy);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.btn-calc::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(200,132,42,0.2) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.22s;
+}
+.btn-calc:hover { background: var(--navy2); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(14,38,64,0.25); }
+.btn-calc:hover::before { opacity: 1; }
+.btn-calc:active { transform: translateY(0); }
+.btn-calc:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* ── RESULTS ─────────────────────────────────────── */
+.result-section {
+  display: none;
+  animation: fadeUp 0.5s ease both;
+}
+.result-section.visible { display: block; }
+
+/* Shock card */
+.shock-card {
+  background: var(--navy);
+  border-radius: var(--radius);
+  padding: 40px 44px;
+  text-align: center;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.shock-card::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: rgba(200,132,42,0.08);
+}
+.shock-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ochre2);
+  margin-bottom: 12px;
+}
+.shock-number {
+  font-family: var(--font-display);
+  font-size: clamp(52px, 10vw, 88px);
+  font-weight: 700;
+  color: var(--ochre);
+  line-height: 1;
+  margin-bottom: 8px;
+  display: block;
+  animation: countUp 0.8s ease both;
+}
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.shock-desc {
+  font-size: 17px;
+  color: rgba(255,255,255,0.75);
+  max-width: 420px;
+  margin: 0 auto 24px;
+  line-height: 1.6;
+}
+.shock-line {
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+  margin: 24px 0;
+}
+.shock-sentence {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-style: italic;
+  color: var(--white);
+  line-height: 1.5;
+  max-width: 460px;
+  margin: 0 auto;
+}
+.shock-sentence em { color: var(--ochre2); font-style: normal; font-weight: 700; }
+
+/* Breakdown grid */
+.breakdown {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+@media (max-width: 580px) { .breakdown { grid-template-columns: 1fr; } }
+
+.breakdown-item {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 20px;
+  text-align: center;
+  box-shadow: var(--shadow2);
+  transition: var(--transition);
+}
+.breakdown-item:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.breakdown-item.highlight { border-top: 3px solid var(--red); }
+.breakdown-item.positive { border-top: 3px solid var(--green); }
+.breakdown-item.neutral  { border-top: 3px solid var(--ochre); }
+
+.breakdown-val {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.breakdown-val.danger { color: var(--red); }
+.breakdown-val.good   { color: var(--green); }
+.breakdown-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--lgrey);
+  margin-bottom: 6px;
+}
+.breakdown-note { font-size: 12px; color: var(--lgrey); line-height: 1.4; }
+
+/* Age actions */
+.age-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px 44px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow2);
+}
+@media (max-width: 580px) { .age-card { padding: 24px 20px; } }
+
+.age-card-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.age-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 2px;
+  color: var(--white);
+}
+.age-tag.green  { background: var(--green); }
+.age-tag.ochre  { background: var(--ochre); }
+.age-tag.navy   { background: var(--navy2); }
+.age-tag.red    { background: var(--red); }
+
+.action-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.action-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--cream);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--ochre);
+  font-size: 14px;
+  line-height: 1.55;
+  transition: var(--transition);
+}
+.action-item:hover { background: var(--cream2); }
+.action-icon {
+  width: 28px; height: 28px;
+  background: var(--ochre);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--white);
+  font-weight: 700;
+}
+
+/* CTA block */
+.cta-block {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+  border-radius: var(--radius);
+  padding: 40px 44px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+@media (max-width: 580px) { .cta-block { padding: 28px 22px; } }
+.cta-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ochre2);
+  margin-bottom: 12px;
+}
+.cta-title {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 14px;
+}
+.cta-body {
+  font-size: 15px;
+  color: rgba(255,255,255,0.65);
+  max-width: 420px;
+  margin: 0 auto 28px;
+  line-height: 1.7;
+}
+.cta-price {
+  font-family: var(--font-display);
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--ochre2);
+  margin-bottom: 6px;
+}
+.cta-price-note {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  text-decoration: line-through;
+  margin-bottom: 24px;
+}
+.btn-buy {
+  display: inline-block;
+  padding: 16px 40px;
+  background: var(--ochre);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--transition);
+  box-shadow: 0 4px 20px rgba(200,132,42,0.35);
+}
+.btn-buy:hover { background: var(--ochre2); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(200,132,42,0.45); }
+.cta-guarantee {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 16px;
+  font-style: italic;
+}
+
+/* Whatsapp float */
+.wa-float {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #25D366;
+  color: var(--white);
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+  z-index: 999;
+  transition: var(--transition);
+  font-size: 26px;
+}
+.wa-float:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(37,211,102,0.5); }
+
+/* Source note */
+.source-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--lgrey);
+  font-style: italic;
+  margin-top: 32px;
+  line-height: 1.6;
+}
+
+/* ── PROGRESS BAR ────────────────────────────────── */
+.progress-bar-wrap {
+  margin-bottom: 32px;
+  display: none;
+}
+.progress-bar-wrap.visible { display: block; }
+.progress-bar-track {
+  height: 3px;
+  background: var(--cream2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--ochre);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Scroll to top */
+.scroll-top {
+  display: block;
+  text-align: center;
+  margin-top: 40px;
+  cursor: pointer;
+  color: var(--lgrey);
+  font-size: 13px;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+}
+.scroll-top:hover { color: var(--ochre); }
+
+/* ── FOOTER ──────────────────────────────────────── */
+.footer {
+  background: var(--navy);
+  color: rgba(255,255,255,0.45);
+  text-align: center;
+  padding: 32px 24px;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.footer strong { color: var(--ochre2); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header" role="banner">
+  <div class="header-inner">
+    <div class="logo">Le Jour <span>Zéro</span></div>
+    <div class="header-badge">Outil gratuit</div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-eyebrow">Simulateur officiel</div>
+  <h1 id="hero-title">Combien vas-tu <em>vraiment</em> toucher à la retraite ?</h1>
+  <p class="hero-sub">3 données. 30 secondes. La vérité sur ton futur revenu. Outil basé sur les taux officiels CNPS, IPRES, CNSS et CARFO.</p>
+  <div class="hero-stat">
+    <strong>40 %</strong>
+    <span>du salaire. C'est ce que représente la pension moyenne en Afrique de l'Ouest.</span>
+  </div>
+</section>
+
+<!-- MAIN -->
+<main class="main" role="main">
+
+  <!-- Progress bar -->
+  <div class="progress-bar-wrap" id="progressWrap" aria-hidden="true">
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <!-- FORM CARD -->
+  <div class="form-card" role="region" aria-label="Formulaire de simulation">
+    <h2 class="form-title">Calcule ton écart maintenant</h2>
+    <p class="form-subtitle">Toutes les données restent sur ton appareil. Rien n'est envoyé ni stocké.</p>
+
+    <form id="simForm" novalidate autocomplete="off" aria-describedby="form-desc">
+      <p id="form-desc" class="field-hint" style="margin-bottom:20px;">Les champs marqués d'un <span style="color:var(--ochre)">*</span> sont obligatoires.</p>
+
+      <div class="form-grid">
+
+        <!-- Salaire -->
+        <div class="field">
+          <label for="salaire">Salaire net mensuel <span class="required">*</span></label>
+          <div class="input-wrap">
+            <input
+              type="number"
+              id="salaire"
+              name="salaire"
+              placeholder="ex : 350 000"
+              min="50000"
+              max="5000000"
+              step="5000"
+              inputmode="numeric"
+              aria-required="true"
+              aria-describedby="salaire-hint salaire-err"
+            >
+            <span class="unit">FCFA</span>
+          </div>
+          <span class="field-hint" id="salaire-hint">Ton salaire net actuel, avant déductions retraite.</span>
+          <span class="field-error" id="salaire-err" role="alert"></span>
+        </div>
+
+        <!-- Pays / Organisme -->
+        <div class="field">
+          <label for="pays">Pays et organisme de retraite <span class="required">*</span></label>
+          <div class="select-wrap">
+            <select
+              id="pays"
+              name="pays"
+              aria-required="true"
+              aria-describedby="pays-hint pays-err"
+            >
+              <option value="">-- Sélectionne ton pays --</option>
+              <option value="SN">Sénégal (IPRES)</option>
+              <option value="CI">Côte d'Ivoire (CNPS)</option>
+              <option value="ML">Mali (CNSS)</option>
+              <option value="BF">Burkina Faso (CARFO)</option>
+              <option value="CM">Cameroun (CNPS-CM)</option>
+              <option value="GN">Guinée (CNSS-GN)</option>
+              <option value="TG">Togo (CNSS-TG)</option>
+              <option value="BJ">Bénin (CNSS-BJ)</option>
+              <option value="NE">Niger (CNSS-NE)</option>
+              <option value="OTHER">Autre pays Afrique de l'Ouest</option>
+            </select>
+          </div>
+          <span class="field-hint" id="pays-hint">Chaque organisme applique un taux différent.</span>
+          <span class="field-error" id="pays-err" role="alert"></span>
+        </div>
+
+        <!-- Années de cotisation -->
+        <div class="field full">
+          <label for="annees">Années de cotisation <span class="required">*</span></label>
+          <div class="range-group">
+            <div class="range-display">
+              <span class="range-label-small">1 an</span>
+              <span class="range-value" id="anneesDisplay" aria-live="polite">20 ans</span>
+              <span class="range-label-small">40 ans</span>
+            </div>
+            <input
+              type="range"
+              id="annees"
+              name="annees"
+              min="1"
+              max="40"
+              value="20"
+              step="1"
+              aria-required="true"
+              aria-valuemin="1"
+              aria-valuemax="40"
+              aria-valuenow="20"
+              aria-label="Nombre d'années de cotisation"
+            >
+          </div>
+          <span class="field-hint">Nombre d'années depuis ton premier emploi déclaré.</span>
+        </div>
+
+        <!-- Âge actuel -->
+        <div class="field">
+          <label for="age">Ton âge actuel <span class="required">*</span></label>
+          <div class="input-wrap">
+            <input
+              type="number"
+              id="age"
+              name="age"
+              placeholder="ex : 52"
+              min="30"
+              max="65"
+              step="1"
+              inputmode="numeric"
+              aria-required="true"
+              aria-describedby="age-hint age-err"
+            >
+            <span class="unit">ans</span>
+          </div>
+          <span class="field-hint" id="age-hint">Entre 30 et 65 ans.</span>
+          <span class="field-error" id="age-err" role="alert"></span>
+        </div>
+
+        <!-- Secteur -->
+        <div class="field">
+          <label for="secteur">Secteur d'activité</label>
+          <div class="select-wrap">
+            <select id="secteur" name="secteur" aria-describedby="secteur-hint">
+              <option value="prive">Secteur privé</option>
+              <option value="public">Fonction publique</option>
+              <option value="minier">Secteur minier</option>
+              <option value="ong">ONG / Associatif</option>
+            </select>
+          </div>
+          <span class="field-hint" id="secteur-hint">Facultatif — affine la recommandation.</span>
+        </div>
+
+      </div><!-- /form-grid -->
+
+      <button type="submit" class="btn-calc" id="btnCalc" aria-label="Calculer ma pension de retraite">
+        Voir mon chiffre maintenant
+      </button>
+
+    </form>
+  </div><!-- /form-card -->
+
+  <!-- RESULTS -->
+  <section class="result-section" id="results" aria-live="polite" aria-label="Résultats de la simulation">
+
+    <!-- Shock -->
+    <div class="shock-card" role="region" aria-label="Résultat principal">
+      <div class="shock-label">Ton écart mensuel estimé</div>
+      <span class="shock-number" id="ecartDisplay" aria-label="Montant de l'écart">—</span>
+      <p class="shock-desc" id="shockDesc">—</p>
+      <div class="shock-line"></div>
+      <p class="shock-sentence" id="shockSentence">—</p>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="breakdown" role="region" aria-label="Détail du calcul">
+      <div class="breakdown-item neutral">
+        <div class="breakdown-lbl">Ton salaire actuel</div>
+        <div class="breakdown-val" id="salaireDisplay">—</div>
+        <div class="breakdown-note">Ce que tu touches aujourd'hui chaque mois</div>
+      </div>
+      <div class="breakdown-item positive">
+        <div class="breakdown-lbl">Ta pension estimée</div>
+        <div class="breakdown-val good" id="pensionDisplay">—</div>
+        <div class="breakdown-note" id="tauxDisplay">—</div>
+      </div>
+      <div class="breakdown-item highlight">
+        <div class="breakdown-lbl">Perte mensuelle</div>
+        <div class="breakdown-val danger" id="perteDisplay">—</div>
+        <div class="breakdown-note" id="perteAnnuelle">—</div>
+      </div>
+    </div>
+
+    <!-- Age actions -->
+    <div class="age-card" id="ageCard" role="region" aria-label="Actions recommandées selon ton âge">
+      <h3 class="age-card-title">
+        Ce que tu peux encore faire
+        <span class="age-tag" id="ageTag">—</span>
+      </h3>
+      <ul class="action-list" id="actionList" aria-label="Liste des actions recommandées">
+      </ul>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-block" role="region" aria-label="Offre Le Jour Zéro">
+      <div class="cta-eyebrow">Guide visuel premium — Édition 2025</div>
+      <h2 class="cta-title">Ce calcul n'est que le début.</h2>
+      <p class="cta-body">Le Jour Zéro est le guide de 15 pages qui t'explique quoi faire avec ce chiffre. Actions concrètes selon ton âge. Comment en parler à ta famille. Les contacts directs de ton organisme de retraite.</p>
+      <div class="cta-price">15 000 FCFA</div>
+      <div class="cta-price-note">Prix standard dès le 1er avril : 25 000 FCFA</div>
+      <a
+        href="https://wa.me/221782945355?text=Bonjour%2C%20j%27ai%20utilis%C3%A9%20le%20simulateur%20et%20je%20veux%20t%C3%A9l%C3%A9charger%20Le%20Jour%20Z%C3%A9ro"
+        class="btn-buy"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Obtenir le guide Le Jour Zéro sur WhatsApp"
+      >
+        Je veux le guide complet
+      </a>
+      <p class="cta-guarantee">Satisfait ou remboursé dans les 7 jours. Paiement via Wave ou Orange Money.</p>
+    </div>
+
+    <!-- Recalculate -->
+    <button class="scroll-top" onclick="resetForm()" aria-label="Refaire une simulation">
+      Refaire une simulation avec d'autres données
+    </button>
+
+    <p class="source-note">
+      Estimations basées sur les taux de remplacement officiels publiés par IPRES (Sénégal), CNPS (Côte d'Ivoire, Cameroun),<br>
+      CNSS (Mali, Guinée, Togo, Bénin, Niger) et CARFO (Burkina Faso). Ces chiffres sont des moyennes indicatives.<br>
+      Contacte ton organisme pour un calcul personnalisé certifié.
+    </p>
+
+  </section>
+
+</main>
+
+<!-- WhatsApp float -->
+<a
+  href="https://wa.me/221782945355?text=Bonjour%2C%20j%27ai%20une%20question%20sur%20ma%20retraite"
+  class="wa-float"
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Contacter sur WhatsApp"
+  title="Une question ? WhatsApp"
+>
+  &#x1F4AC;
+</a>
+
+<!-- FOOTER -->
+<footer class="footer" role="contentinfo">
+  <strong>Le Jour Zéro</strong> — Mamadou Aliou DIALLO<br>
+  Infographe spécialisé en éducation financière visuelle — Afrique de l'Ouest 2025<br>
+  Outil gratuit. Aucune donnée collectée. Aucun cookie de suivi.
+</footer>
+
+<script>
+/* ── DATA ──────────────────────────────────────────────────── */
+
+// Taux de remplacement par pays (%) et majorations secteur
+const TAUX = {
+  SN:    { base: 40, label: "IPRES Sénégal",         min: 35, max: 45 },
+  CI:    { base: 42, label: "CNPS Côte d'Ivoire",    min: 38, max: 48 },
+  ML:    { base: 38, label: "CNSS Mali",              min: 32, max: 44 },
+  BF:    { base: 43, label: "CARFO Burkina Faso",     min: 38, max: 50 },
+  CM:    { base: 40, label: "CNPS Cameroun",          min: 35, max: 46 },
+  GN:    { base: 36, label: "CNSS Guinée",            min: 30, max: 42 },
+  TG:    { base: 38, label: "CNSS Togo",              min: 32, max: 44 },
+  BJ:    { base: 40, label: "CNSS Bénin",             min: 34, max: 46 },
+  NE:    { base: 37, label: "CNSS Niger",             min: 30, max: 43 },
+  OTHER: { base: 40, label: "Afrique de l'Ouest",     min: 30, max: 50 },
+};
+
+const SECTEUR_BONUS = { prive: 0, public: 5, minier: 3, ong: -2 };
+
+const ACTIONS = {
+  jeune: { // 45-49
+    tag: "45 — 49 ans",
+    color: "green",
+    items: [
+      { icon: "1", text: "Contacte ton organisme de retraite cette semaine. Demande ton relevé de carrière. Ce document existe. La plupart ne l'ont jamais demandé." },
+      { icon: "2", text: "Ouvre un compte d'épargne dédié retraite, distinct de ton compte courant. Un compte séparé multiplie par trois la probabilité que tu n'y touches pas." },
+      { icon: "3", text: "Identifie une compétence existante qui peut générer un revenu complémentaire après la retraite. Note-la. C'est ton actif invisible." },
+    ]
+  },
+  moyen: { // 50-54
+    tag: "50 — 54 ans",
+    color: "ochre",
+    items: [
+      { icon: "1", text: "Calcule tes charges fixes incompressibles avec le tableau ci-dessus. Identifie celles qui peuvent être réduites avant ta retraite." },
+      { icon: "2", text: "Parle à ton conjoint cette semaine. Montrez-lui ces chiffres. Deux personnes qui voient le même problème trouvent des solutions qu'une seule n'aurait pas vues." },
+      { icon: "3", text: "Identifie un crédit ou une charge fixe qui sera remboursé avant ta retraite. Chaque charge qui disparaît réduit ton écart réel." },
+    ]
+  },
+  senior: { // 55-58
+    tag: "55 — 58 ans",
+    color: "navy",
+    items: [
+      { icon: "1", text: "Fixe ta date de départ à la retraite et compte les mois qui restent. Ce chiffre, même modeste, change ta relation psychologique à la situation." },
+      { icon: "2", text: "Fais l'inventaire de tes actifs réels : propriété, terrain, véhicule, épargne, droits employeur. Beaucoup sous-estiment ce qu'ils ont." },
+      { icon: "3", text: "Identifie les charges qui disparaîtront naturellement à la retraite : transport professionnel, frais de représentation. Ton écart réel est souvent moins large que tu ne le crois." },
+    ]
+  },
+  urgent: { // 59+
+    tag: "Action urgente",
+    color: "red",
+    items: [
+      { icon: "!", text: "Le temps de construire est réduit. Concentre-toi sur deux choses : sécuriser ce que tu as et réduire immédiatement tes charges fixes pour absorber l'écart." },
+      { icon: "1", text: "Contacte ton organisme de retraite cette semaine pour connaître ton montant exact de pension. Ne travaille plus avec des estimations." },
+      { icon: "2", text: "Rencontre un conseiller financier ou contacte-moi pour un diagnostic personnalisé de 90 minutes. C'est le meilleur investissement que tu peux faire maintenant." },
+    ]
+  }
+};
+
+/* ── UTILS ─────────────────────────────────────────────────── */
+
+function formatFCFA(n) {
+  return Math.round(n).toLocaleString('fr-FR') + ' FCFA';
+}
+
+function sanitizeNumber(val, min, max) {
+  const n = parseFloat(String(val).replace(/\s/g, '').replace(',', '.'));
+  if (isNaN(n)) return null;
+  if (n < min || n > max) return null;
+  return n;
+}
+
+function showError(fieldId, errId, msg) {
+  const field = document.getElementById(fieldId);
+  const err   = document.getElementById(errId);
+  if (field) field.classList.add('error');
+  if (err)   { err.textContent = msg; err.classList.add('visible'); }
+}
+function clearError(fieldId, errId) {
+  const field = document.getElementById(fieldId);
+  const err   = document.getElementById(errId);
+  if (field) field.classList.remove('error');
+  if (err)   { err.textContent = ''; err.classList.remove('visible'); }
+}
+function clearAllErrors() {
+  ['salaire','pays','age'].forEach(f => clearError(f, f + '-err'));
+}
+
+/* ── RANGE DISPLAY ─────────────────────────────────────────── */
+document.getElementById('annees').addEventListener('input', function() {
+  const disp = document.getElementById('anneesDisplay');
+  disp.textContent = this.value + ' an' + (this.value > 1 ? 's' : '');
+  this.setAttribute('aria-valuenow', this.value);
+});
+
+/* ── VALIDATION ────────────────────────────────────────────── */
+function validate() {
+  let ok = true;
+  clearAllErrors();
+
+  const sal = sanitizeNumber(document.getElementById('salaire').value, 50000, 5000000);
+  if (!sal) {
+    showError('salaire', 'salaire-err', 'Entre un salaire entre 50 000 et 5 000 000 FCFA.');
+    ok = false;
+  }
+
+  const pays = document.getElementById('pays').value;
+  if (!pays) {
+    showError('pays', 'pays-err', 'Sélectionne ton pays.');
+    ok = false;
+  }
+
+  const age = sanitizeNumber(document.getElementById('age').value, 30, 65);
+  if (!age) {
+    showError('age', 'age-err', 'Entre un âge entre 30 et 65 ans.');
+    ok = false;
+  }
+
+  return ok ? { sal, pays, age } : null;
+}
+
+/* ── CALCULATE ─────────────────────────────────────────────── */
+function calculate(sal, pays, annees, age, secteur) {
+  const info   = TAUX[pays] || TAUX.OTHER;
+  const bonus  = SECTEUR_BONUS[secteur] || 0;
+
+  // Taux ajusté selon années (bonification longue carrière)
+  let tauxBase = info.base + bonus;
+  if (annees >= 35) tauxBase = Math.min(tauxBase + 5, info.max);
+  else if (annees <= 10) tauxBase = Math.max(tauxBase - 5, info.min);
+
+  const pension = sal * (tauxBase / 100);
+  const ecart   = sal - pension;
+  const ecartAn = ecart * 12;
+  const pct     = 100 - tauxBase;
+
+  return { pension, ecart, ecartAn, pct, tauxBase, label: info.label };
+}
+
+/* ── RENDER RESULTS ────────────────────────────────────────── */
+function renderResults(data, age, pays) {
+  const { pension, ecart, ecartAn, pct, tauxBase, label } = data;
+  const sal = parseFloat(document.getElementById('salaire').value.replace(/\s/g, ''));
+
+  // Shock block
+  document.getElementById('ecartDisplay').textContent = '- ' + formatFCFA(ecart);
+  document.getElementById('shockDesc').textContent =
+    `Le jour de ta retraite, tu passes de ${formatFCFA(sal)} à ${formatFCFA(pension)} par mois. Tes charges, elles, ne bougent pas.`;
+  document.getElementById('shockSentence').innerHTML =
+    `En un an, c'est <em>${formatFCFA(ecartAn)}</em> de revenus en moins. Chaque année de retraite.`;
+
+  // Breakdown
+  document.getElementById('salaireDisplay').textContent = formatFCFA(sal);
+  document.getElementById('pensionDisplay').textContent = formatFCFA(pension);
+  document.getElementById('tauxDisplay').textContent    = `Taux ${tauxBase}% — ${label}`;
+  document.getElementById('perteDisplay').textContent   = '- ' + formatFCFA(ecart);
+  document.getElementById('perteAnnuelle').textContent  = `Soit ${formatFCFA(ecartAn)} perdus par an`;
+
+  // Age actions
+  let ageKey = 'jeune';
+  if (age >= 55) ageKey = 'senior';
+  else if (age >= 50) ageKey = 'moyen';
+  else if (age >= 59) ageKey = 'urgent';
+  if (age >= 59) ageKey = 'urgent';
+
+  const ageData = ACTIONS[ageKey];
+  const ageTag  = document.getElementById('ageTag');
+  ageTag.textContent  = ageData.tag;
+  ageTag.className    = 'age-tag ' + ageData.color;
+
+  const list = document.getElementById('actionList');
+  list.innerHTML = '';
+  ageData.items.forEach(item => {
+    const li = document.createElement('li');
+    li.className = 'action-item';
+    li.innerHTML = `<span class="action-icon">${item.icon}</span><span>${item.text}</span>`;
+    list.appendChild(li);
+  });
+}
+
+/* ── FORM SUBMIT ───────────────────────────────────────────── */
+document.getElementById('simForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const valid = validate();
+  if (!valid) return;
+
+  const { sal, pays, age } = valid;
+  const annees = parseInt(document.getElementById('annees').value, 10);
+  const secteur = document.getElementById('secteur').value;
+
+  // Animate progress bar
+  const wrap = document.getElementById('progressWrap');
+  const fill = document.getElementById('progressFill');
+  wrap.classList.add('visible');
+  fill.style.width = '0%';
+
+  const btn = document.getElementById('btnCalc');
+  btn.disabled = true;
+  btn.textContent = 'Calcul en cours…';
+
+  // Simulate brief loading for UX
+  setTimeout(() => { fill.style.width = '60%'; }, 100);
+  setTimeout(() => { fill.style.width = '100%'; }, 500);
+
+  setTimeout(() => {
+    const data = calculate(sal, pays, annees, age, secteur);
+    renderResults(data, age, pays);
+
+    const results = document.getElementById('results');
+    results.classList.add('visible');
+    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    wrap.classList.remove('visible');
+    btn.disabled = false;
+    btn.textContent = 'Voir mon chiffre maintenant';
+  }, 800);
+});
+
+/* ── RESET ─────────────────────────────────────────────────── */
+function resetForm() {
+  document.getElementById('simForm').reset();
+  document.getElementById('anneesDisplay').textContent = '20 ans';
+  document.getElementById('results').classList.remove('visible');
+  clearAllErrors();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── REAL-TIME VALIDATION ──────────────────────────────────── */
+['salaire','age'].forEach(id => {
+  document.getElementById(id).addEventListener('blur', function() {
+    if (this.value) {
+      const min = id === 'salaire' ? 50000 : 30;
+      const max = id === 'salaire' ? 5000000 : 65;
+      const n = sanitizeNumber(this.value, min, max);
+      if (!n) {
+        const msg = id === 'salaire'
+          ? 'Entre un salaire entre 50 000 et 5 000 000 FCFA.'
+          : 'Entre un âge entre 30 et 65 ans.';
+        showError(id, id + '-err', msg);
+      } else {
+        clearError(id, id + '-err');
+      }
+    }
+  });
+});
+
+document.getElementById('pays').addEventListener('change', function() {
+  if (this.value) clearError('pays', 'pays-err');
+});
+</script>
+
+</body>
+</html>
